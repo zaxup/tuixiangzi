@@ -18,7 +18,7 @@ export class GameUI extends Component {
         "00011100";
 
     /**
-     * 扩展，调整预制资源的大小，地图的大小，地图的位置    这些都交给你们自己去实现。
+     * todo 扩展，调整预制资源的大小，地图的大小，地图的位置    这些都交给你们自己去实现。
      */
     start() {
         let mapLayoutNode = this.node.getChildByName('MapLayout');
