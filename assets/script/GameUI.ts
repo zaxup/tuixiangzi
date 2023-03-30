@@ -39,31 +39,7 @@ export class GameUI extends Component {
      * todo 扩展，调整预制资源的大小，地图的大小，地图的位置    这些都交给你们自己去实现。
      */
     start() {
-        let mapLayoutNode = this.node.getChildByName('MapLayout');
 
-        let mapArr = this.mapStr.split("\n");
-        mapLayoutNode.getComponent(Layout).constraintNum = mapArr.length;
-
-        for (let i = 0; i < mapArr.length; i++) {
-            let line = mapArr[i];
-            this.spriteNodeArray[i] = [];
-            this.valArray[i] = [];
-            for (let j = 0; j < line.length; j++) {
-                let val = line.charAt(j);
-                let spriteNode = instantiate(this.spritePrefab);
-                resources.load(`${val}/spriteFrame`, SpriteFrame, (err, spriteFrame) => {
-                    spriteNode.getComponent(Sprite).spriteFrame = spriteFrame;
-                });
-                mapLayoutNode.addChild(spriteNode);
-                if (Number(val) == 3) {
-                    this.player = new Vec2();
-                    this.player.x = i;
-                    this.player.y = j;
-                }
-                this.spriteNodeArray[i][j] = spriteNode;
-                this.valArray[i][j] = Number(val);
-            }
-        }
     }
 
     update(deltaTime: number) {
@@ -129,18 +105,216 @@ export class GameUI extends Component {
             playerSpriteNode.getComponent(Sprite).spriteFrame = spriteFrame;
         });
         this.player.y = this.player.y - 1;
+        this.passCheck();
     }
 
     rightBtn() {
+        let leftVal = this.valArray[this.player.x][this.player.y + 1];
+        //如果左边是墙的话，不能过来
+        if (leftVal == 1) {
+            return;
+        }
+        //如果左边是箱子，
+        if (leftVal == 4 || leftVal == 5) {
+            let leftLeftVal = this.valArray[this.player.x][this.player.y + 2];
+            if (leftLeftVal == 1 || leftLeftVal == 4 || leftLeftVal == 5) {
+                return;
+            }
+            let leftLeftSpriteNode = this.spriteNodeArray[this.player.x][this.player.y + 2];
+            if (leftLeftVal == 2) {
+                this.valArray[this.player.x][this.player.y + 2] = 5;
+            } else {
+                this.valArray[this.player.x][this.player.y + 2] = 4;
+            }
+            if (leftVal == 4) {
+                this.valArray[this.player.x][this.player.y + 1] = 0;
+            }
+            if (leftVal == 5) {
+                this.valArray[this.player.x][this.player.y + 1] = 2;
+            }
+            resources.load(`${this.valArray[this.player.x][this.player.y + 2]}/spriteFrame`, SpriteFrame, (err, spriteFrame) => {
+                leftLeftSpriteNode.getComponent(Sprite).spriteFrame = spriteFrame;
+            });
+        }
+        leftVal = this.valArray[this.player.x][this.player.y + 1];
+        let leftSpriteNode = this.spriteNodeArray[this.player.x][this.player.y + 1];
+        if (leftVal == 2) {
+            this.valArray[this.player.x][this.player.y + 1] = 6;
+        } else {
+            this.valArray[this.player.x][this.player.y + 1] = 3;
+        }
+        resources.load(`${this.valArray[this.player.x][this.player.y + 1]}/spriteFrame`, SpriteFrame, (err, spriteFrame) => {
+            leftSpriteNode.getComponent(Sprite).spriteFrame = spriteFrame;
+        });
+        let playerVal = this.valArray[this.player.x][this.player.y];
+        let playerSpriteNode = this.spriteNodeArray[this.player.x][this.player.y];
+        if (playerVal == 3) {
+            this.valArray[this.player.x][this.player.y] = 0;
+        } else if (playerVal == 6) {
+            this.valArray[this.player.x][this.player.y] = 2;
 
+        }
+        resources.load(`${this.valArray[this.player.x][this.player.y]}/spriteFrame`, SpriteFrame, (err, spriteFrame) => {
+            playerSpriteNode.getComponent(Sprite).spriteFrame = spriteFrame;
+        });
+        this.player.y = this.player.y + 1;
+        this.passCheck();
     }
 
     upBtn() {
+        let leftVal = this.valArray[this.player.x - 1][this.player.y];
+        //如果左边是墙的话，不能过来
+        if (leftVal == 1) {
+            return;
+        }
+        //如果左边是箱子，
+        if (leftVal == 4 || leftVal == 5) {
+            let leftLeftVal = this.valArray[this.player.x - 2][this.player.y];
+            if (leftLeftVal == 1 || leftLeftVal == 4 || leftLeftVal == 5) {
+                return;
+            }
+            let leftLeftSpriteNode = this.spriteNodeArray[this.player.x - 2][this.player.y];
+            if (leftLeftVal == 2) {
+                this.valArray[this.player.x - 2][this.player.y] = 5;
+            } else {
+                this.valArray[this.player.x - 2][this.player.y] = 4;
+            }
+            if (leftVal == 4) {
+                this.valArray[this.player.x - 1][this.player.y] = 0;
+            }
+            if (leftVal == 5) {
+                this.valArray[this.player.x - 1][this.player.y] = 2;
+            }
+            resources.load(`${this.valArray[this.player.x - 2][this.player.y]}/spriteFrame`, SpriteFrame, (err, spriteFrame) => {
+                leftLeftSpriteNode.getComponent(Sprite).spriteFrame = spriteFrame;
+            });
+        }
+        leftVal = this.valArray[this.player.x - 1][this.player.y];
+        let leftSpriteNode = this.spriteNodeArray[this.player.x - 1][this.player.y];
+        if (leftVal == 2) {
+            this.valArray[this.player.x - 1][this.player.y] = 6;
+        } else {
+            this.valArray[this.player.x - 1][this.player.y] = 3;
+        }
+        resources.load(`${this.valArray[this.player.x - 1][this.player.y]}/spriteFrame`, SpriteFrame, (err, spriteFrame) => {
+            leftSpriteNode.getComponent(Sprite).spriteFrame = spriteFrame;
+        });
+        let playerVal = this.valArray[this.player.x][this.player.y];
+        let playerSpriteNode = this.spriteNodeArray[this.player.x][this.player.y];
+        if (playerVal == 3) {
+            this.valArray[this.player.x][this.player.y] = 0;
+        } else if (playerVal == 6) {
+            this.valArray[this.player.x][this.player.y] = 2;
 
+        }
+        resources.load(`${this.valArray[this.player.x][this.player.y]}/spriteFrame`, SpriteFrame, (err, spriteFrame) => {
+            playerSpriteNode.getComponent(Sprite).spriteFrame = spriteFrame;
+        });
+        this.player.x = this.player.x - 1;
+        this.passCheck();
     }
 
     downBtn() {
+        let leftVal = this.valArray[this.player.x + 1][this.player.y];
+        //如果左边是墙的话，不能过来
+        if (leftVal == 1) {
+            return;
+        }
+        //如果左边是箱子，
+        if (leftVal == 4 || leftVal == 5) {
+            let leftLeftVal = this.valArray[this.player.x + 2][this.player.y];
+            if (leftLeftVal == 1 || leftLeftVal == 4 || leftLeftVal == 5) {
+                return;
+            }
+            let leftLeftSpriteNode = this.spriteNodeArray[this.player.x + 2][this.player.y];
+            if (leftLeftVal == 2) {
+                this.valArray[this.player.x + 2][this.player.y] = 5;
+            } else {
+                this.valArray[this.player.x + 2][this.player.y] = 4;
+            }
+            if (leftVal == 4) {
+                this.valArray[this.player.x + 1][this.player.y] = 0;
+            }
+            if (leftVal == 5) {
+                this.valArray[this.player.x + 1][this.player.y] = 2;
+            }
+            resources.load(`${this.valArray[this.player.x + 2][this.player.y]}/spriteFrame`, SpriteFrame, (err, spriteFrame) => {
+                leftLeftSpriteNode.getComponent(Sprite).spriteFrame = spriteFrame;
+            });
+        }
+        leftVal = this.valArray[this.player.x + 1][this.player.y];
+        let leftSpriteNode = this.spriteNodeArray[this.player.x + 1][this.player.y];
+        if (leftVal == 2) {
+            this.valArray[this.player.x + 1][this.player.y] = 6;
+        } else {
+            this.valArray[this.player.x + 1][this.player.y] = 3;
+        }
+        resources.load(`${this.valArray[this.player.x + 1][this.player.y]}/spriteFrame`, SpriteFrame, (err, spriteFrame) => {
+            leftSpriteNode.getComponent(Sprite).spriteFrame = spriteFrame;
+        });
+        let playerVal = this.valArray[this.player.x][this.player.y];
+        let playerSpriteNode = this.spriteNodeArray[this.player.x][this.player.y];
+        if (playerVal == 3) {
+            this.valArray[this.player.x][this.player.y] = 0;
+        } else if (playerVal == 6) {
+            this.valArray[this.player.x][this.player.y] = 2;
 
+        }
+        resources.load(`${this.valArray[this.player.x][this.player.y]}/spriteFrame`, SpriteFrame, (err, spriteFrame) => {
+            playerSpriteNode.getComponent(Sprite).spriteFrame = spriteFrame;
+        });
+        this.player.x = this.player.x + 1;
+        this.passCheck();
+    }
+
+    /**
+     * 通关检测
+     */
+    passCheck() {
+        let isPass = true;
+        for (let i = 0; i < this.valArray.length; i++) {
+            let line = this.valArray[i];
+            for (let j = 0; j < line.length; j++) {
+                let val = this.valArray[i][j];
+                if (val == 2 || val == 6) {
+                    isPass = false;
+                }
+            }
+        }
+        if (isPass) {
+            this.node.getChildByName('PassSprite').active = true;
+        }
+    }
+
+
+    startBtn() {
+        let mapLayoutNode = this.node.getChildByName('MapLayout');
+
+        let mapArr = this.mapStr.split("\n");
+        mapLayoutNode.getComponent(Layout).constraintNum = mapArr.length;
+
+        for (let i = 0; i < mapArr.length; i++) {
+            let line = mapArr[i];
+            this.spriteNodeArray[i] = [];
+            this.valArray[i] = [];
+            for (let j = 0; j < line.length; j++) {
+                let val = line.charAt(j);
+                let spriteNode = instantiate(this.spritePrefab);
+                resources.load(`${val}/spriteFrame`, SpriteFrame, (err, spriteFrame) => {
+                    spriteNode.getComponent(Sprite).spriteFrame = spriteFrame;
+                });
+                mapLayoutNode.addChild(spriteNode);
+                if (Number(val) == 3) {
+                    this.player = new Vec2();
+                    this.player.x = i;
+                    this.player.y = j;
+                }
+                this.spriteNodeArray[i][j] = spriteNode;
+                this.valArray[i][j] = Number(val);
+            }
+        }
+
+        this.node.getChildByName('StartButton').active = false;
     }
 }
 
